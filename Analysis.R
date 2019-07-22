@@ -298,7 +298,7 @@ table(Uncert[,c(3,4)])
 #                                                                                                #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-#~# Variation in mechanism agreement round 1
+#~# Variation in mechanism agreement round 1----
 InsMechMat.1 <- matrix(nrow = 100, ncol = 11)
 rownames(InsMechMat.1) <- levels(InsectMechanism.1$Species)
 colnames(InsMechMat.1) <- levels(InsectMechanism.1$Assessor.1.Mechanism)
@@ -443,7 +443,7 @@ ggplot(LongData, aes(x = Var2, y = Var1)) +
   xlab("Mechanism of impact") +
   ylab("Species")
 
-#~# Variation in mechanism agreement round 2
+#~# Variation in mechanism agreement round 2----
 InsMechMat.2 <- matrix(nrow = 100, ncol = 11)
 rownames(InsMechMat.2) <- levels(InsectMechanism.2$Species)
 colnames(InsMechMat.2) <- levels(InsectMechanism.2$Assessor.1.Mechanism)
@@ -646,7 +646,7 @@ UT <- ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   scale_y_continuous(expand = c(0,0))
 
 
-
+                                     ## Overall results ##
 
 # Summary of 1st and 2nd round results
 Agreement <- c(44, 34, 32, 10, 65, 70, 63, 36)
