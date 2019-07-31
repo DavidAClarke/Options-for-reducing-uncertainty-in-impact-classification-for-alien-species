@@ -568,9 +568,9 @@ ggplot(LongData.2, aes(x = Var2, y = Var1)) +
 colours <- c("magenta4", "turquoise4", "black", "brown4", "deepskyblue3", "seagreen4", "gray45")
 par(mfrow = c(1,2))
 par(mar = c(3,1,3,1))    
-chordDiagram(Rnd1.mat, grid.col = colours, transparency = 0.5)
+chordDiagram(Rnd1.mat, grid.col = colours, transparency = 0.5, annotationTrack = c("name", "grid"), annotationTrackHeight = c(0.03, 0.03))
 text(1,1,labels = "A")
-chordDiagram(Rnd2.mat, grid.col = colours, transparency = 0.5)
+chordDiagram(Rnd2.mat, grid.col = colours, transparency = 0.5, annotationTrack = c("name", "grid"), annotationTrackHeight = c(0.03, 0.03))
 text(1,1,labels = "B")
 
 #~# Plot of final results
@@ -602,7 +602,7 @@ UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),]
 Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),]
 
 # Horizontal bar chart of causes of uncertainty
-UC <- ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
+ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
   geom_bar(position = "dodge") +
   coord_flip() +
   facet_wrap(~AssessmentComponent) +
@@ -621,11 +621,11 @@ UC <- ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
   ylab("Frequency") +
   scale_fill_manual(values = c("black","gray")) +
   scale_y_continuous(expand = c(0,0)) +
-  scale_x_discrete(labels = abbreviate) # may be useful. Can elaborate in the caption?
+  scale_x_discrete(limits = rev(levels(UncertErr.noNA$ErrorSource))) 
 
 
 # Horizontal bar chart of types of uncertainty
-UT <- ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
+ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   geom_bar(position = "dodge") +
   coord_flip() +
   facet_wrap(~AssessmentComponent) +
