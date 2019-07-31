@@ -281,23 +281,6 @@ NumSev(Rnd1.mat)
 # Impact severity agreement round 2
 NumSev(Rnd2.mat)
 
-# Impact mechanism agreement round 1
-
-# Impact mechanism agreement round 2
-
-# Frequencies of the error types by mechanism and severity
-table(Uncert[,c(2,4)])
-
-# Frequencies of the uncertainty types by mechanism and severity
-table(Uncert[,c(3,4)])
-
-# Section 3----
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                                #
-#              SECTION 3: Plotting                                                               #
-#                                                                                                #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
 #~# Variation in mechanism agreement round 1----
 InsMechMat.1 <- matrix(nrow = 100, ncol = 11)
 rownames(InsMechMat.1) <- levels(InsectMechanism.1$Species)
@@ -427,21 +410,7 @@ InsMechMat.1 <- InsMechMat.1[order(InsMechMat.1[,1],InsMechMat.1[,2],InsMechMat.
                                    InsMechMat.1[,7],InsMechMat.1[,8],InsMechMat.1[,9],
                                    InsMechMat.1[,10],InsMechMat.1[,11], decreasing = T),]
 
-LongData <- melt(InsMechMat.1)
-ggplot(LongData, aes(x = Var2, y = Var1)) + 
-      geom_tile(aes(fill=value), colour = "black") +
-  scale_fill_gradientn(colours = c("white", "darkgreen", "orangered")) +
-  theme_bw() +
-  theme(axis.line = element_line(colour = "grey90"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text.x = element_text(angle = 40, hjust = 1),
-        legend.position = "none") +
-  scale_y_discrete(limits = rev(levels(LongData$Var1))) +
-  xlab("Mechanism of impact") +
-  ylab("Species")
+apply(InsMechMat.1, 2, table)
 
 #~# Variation in mechanism agreement round 2----
 InsMechMat.2 <- matrix(nrow = 100, ncol = 11)
@@ -546,6 +515,39 @@ InsMechMat.2 <- InsMechMat.2[order(InsMechMat.2[,1],InsMechMat.2[,2],InsMechMat.
                                    InsMechMat.2[,7],InsMechMat.2[,8],InsMechMat.2[,9],
                                    InsMechMat.2[,10],InsMechMat.2[,11], decreasing = T),]
 
+apply(InsMechMat.2, 2, table)
+
+# Frequencies of the error types by mechanism and severity
+table(Uncert[,c(2,4)])
+
+# Frequencies of the uncertainty types by mechanism and severity
+table(Uncert[,c(3,4)])
+
+# Section 3----
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                                                #
+#              SECTION 3: Plotting                                                               #
+#                                                                                                #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# Mechanism variation in round 1
+LongData <- melt(InsMechMat.1)
+ggplot(LongData, aes(x = Var2, y = Var1)) + 
+      geom_tile(aes(fill=value), colour = "black") +
+  scale_fill_gradientn(colours = c("white", "darkgreen", "orangered")) +
+  theme_bw() +
+  theme(axis.line = element_line(colour = "grey90"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.text.x = element_text(angle = 40, hjust = 1),
+        legend.position = "none") +
+  scale_y_discrete(limits = rev(levels(LongData$Var1))) +
+  xlab("Mechanism of impact") +
+  ylab("Species")
+
+# Mechanism variation in round 2
 LongData.2 <- melt(InsMechMat.2)
 ggplot(LongData.2, aes(x = Var2, y = Var1)) + 
   geom_tile(aes(fill=value), colour = "black") +
