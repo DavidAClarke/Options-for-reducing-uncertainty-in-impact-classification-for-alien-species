@@ -56,22 +56,22 @@ NumSev <- function(matrix) {
 # matrix will receive -1 in the given row (species). Every other value that doesn't have 1 or -1 is 0
 
 # this isn't working
-df2mat <- function(df) {
-  m <- matrix(nrow = length(levels(df[,1])), ncol = length(levels(df[,2])))
-  rownames(m) <- levels(df[,1])
-  colnames(m) <- levels(df[,2])
-  for(i in 1:nrow(df)) {
-    for(j in 1:ncol(df)) {
-      for(a in 1:nrow(m)) {
-        for(b in 1:ncol(m)) {
-          ifelse(df[i,2] == df[i,3] & df[i,2] == colnames(m) &
-                   df[i,1] == rownames(m)[i], m[a,b] <- 1, m[a,b] <- 0)
-        }
-      }
-      } 
-    }
-  return(m)
-}
+#df2mat <- function(df) {
+#  m <- matrix(nrow = length(levels(df[,1])), ncol = length(levels(df[,2])))
+#  rownames(m) <- levels(df[,1])
+#  colnames(m) <- levels(df[,2])
+#  for(i in 1:nrow(df)) {
+#    for(j in 1:ncol(df)) {
+#      for(a in 1:nrow(m)) {
+#       for(b in 1:ncol(m)) {
+#         ifelse(df[i,2] == df[i,3] & df[i,2] == colnames(m) &
+#                   df[i,1] == rownames(m)[i], m[a,b] <- 1, m[a,b] <- 0)
+#        }
+#      }
+#     } 
+#    }
+#  return(m)
+#}
 
 
 
@@ -91,3 +91,5 @@ Cat2Rnk <- function(Category) {
 Rnk2Norm <- function(df) {
   (df-1)/(max(df-1))
 }
+
+
