@@ -28,7 +28,7 @@ dir.create("Documents")
 dir.create("Scripts")
 
 #~# Source data
-Rnd1 <- read.csv("data/Round1.csv", header = T, sep = ",") #with Monarch butterfly removed
+Rnd1 <- read.csv("data/Round1.csv", header = T, sep = ",") 
 Rnd2 <- read.csv("data/Round2.csv", header = T, sep = ",")
 Final <- read.csv("data/Final_Results.csv", header = T, sep = ",")
 Uncert <- read.csv("data/CombUncert.csv", header = T, sep = ",")
@@ -656,25 +656,22 @@ Component <- c("Mechanism","Severity","Confidence","Overall","Mechanism","Severi
 Component <- factor(Component, levels = c("Mechanism", "Severity", "Confidence", "Overall"))
 Rnd <- c(rep("One",4),rep("Two",4))
 SumRes <- data.frame(Agreement, Component, Rnd)
-ggplot(SumRes, aes(x = Component, y = Agreement, colour = Rnd)) +
-  geom_point(aes(size = 5)) +
-    guides(size = guide_legend(order = 2),
-         colour = guide_legend(order = 1)) +
-  guides(size = F) +
+ggplot(SumRes, aes(Component, Agreement, fill = Rnd)) +
+  geom_bar(position = "dodge", stat = "identity") +
   theme_bw() +
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank(),
-        legend.position = c(0.85, 0.85),
+        legend.position = c(0.90, 0.85),
         legend.background = element_blank(),
         legend.box.background = element_rect(colour = "black")) +
   scale_y_continuous(breaks = c(seq(0,100,25)), 
                      labels = c(0,25,50,75,100), 
                      expand = c(0,0), 
                      limits = c(0,100)) +
-  scale_color_manual("Assessment\nround",values = c("One" = "black", "Two" = "grey")) +
+  scale_fill_manual("Assessment\nround",values = c("One" = "black", "Two" = "grey")) +
   ylab("Assessor agreement (%)")
 
   
