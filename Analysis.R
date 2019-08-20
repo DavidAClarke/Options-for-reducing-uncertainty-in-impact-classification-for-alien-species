@@ -238,7 +238,7 @@ Uncert$ErrorSource <- factor(Uncert$ErrorSource,
 Uncert$Uncertainty <- factor(Uncert$Uncertainty, 
                              levels = c("Context dependence","Measurement error",
                                         "Model uncertainty","Natural variation",
-                                        "Subjective judgement","Subjective judgement as a result of lack of knowledge",
+                                        "Subjective judgment","Subjective judgment as a result of lack of knowledge",
                                         "Systematic error","Systematic error as a result of lack of knowledge",
                                         "Vagueness"))
 
