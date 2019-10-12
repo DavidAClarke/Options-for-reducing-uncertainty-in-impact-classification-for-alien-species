@@ -234,7 +234,7 @@ Uncert$ErrorSource <- factor(Uncert$ErrorSource,
                         "6b Limitations of assessment framework","7 Species designation as invasive",
                         "8 Documented data and knowledge not readily or widely accessible",
                         "9 Unclear mechanism and/or extent of impact", "10 Extrapolation of evidence",
-                        "11 Non-adherence to assessment protocol","12 No apparent cause"))
+                        "11 Deviation from assessment protocol","12 No apparent cause"))
 Uncert$Uncertainty <- factor(Uncert$Uncertainty, 
                              levels = c("Context dependence","Measurement error",
                                         "Model uncertainty","Natural variation",
