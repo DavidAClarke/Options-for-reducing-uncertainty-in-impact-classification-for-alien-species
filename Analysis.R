@@ -225,7 +225,6 @@ Final$Mechanism <- factor(Final$Mechanism, levels = c("Herbivory","Competition",
 
                         #~# Uncertainty classification #~#
 
-Uncert <- Uncert[,c(1:4)]
 Uncert <- NA2fctlvl(Uncert)
 Uncert$ErrorSource <- factor(Uncert$ErrorSource, 
               levels =c("1 Human error", "2 Incomplete information searches",
@@ -252,10 +251,10 @@ Uncert$Uncertainty <- factor(Uncert$Uncertainty,
 Mech.agree.1 <- agree(Rnd1[,4:5])
 
 # Frequency of 1st round severity agreement
-Sev.agree.1 <- agree(Rnd1[,8:9])
+Sev.agree.1 <- agree(Rnd1[,6:7])
 
 # Frequency of 1st round confidence agreement
-conf.agree.1 <- agree(Rnd1[,10:11])
+conf.agree.1 <- agree(Rnd1[,8:9])
 
 # Frequency of 2nd round mechanism agreement
 Mech.agree.2 <- agree(Rnd2[,4:5])
@@ -600,10 +599,37 @@ ggplot(Final, aes(Severity, scientificName)) +
                                       ## Uncertainty ##
 
 # Removing NA's for graphical purposes
-UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),]
-Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),]
+UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),] #source of uncertainty
+# Ordering sources from most to least frequent
+h2l.S <- levels(Uncert$ErrorSource)
+levels(h2l.S) <- c("2 Incomplete information searches", 
+                "6b Limitations of assessment framework", 
+                "9 Unclear mechanism and/or extent of impact", 
+                "10 Extrapolation of evidence", 
+                "11 Deviation from assessment protocol", 
+                "1 Human error", 
+                "12 No apparent cause", 
+                "6a Limitations of assessment framework", 
+                "7 Species designation as invasive", 
+                "8 Documented data and knowledge not readily or widely accessible", 
+                "3 Taxonomic ambiguity", 
+                "5 Baseline information on indigenous range", 
+                "4 Resolution of data and scaling of alien range")
 
-# Horizontal bar chart of causes of uncertainty
+Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),] #type of uncertainty
+# Ordering types from most to least frequent
+h2l.T <- levels(Uncert$Uncertainty)
+levels(h2l.T) <- c("Systematic error", 
+                   "Subjective judgment as a result of lack of knowledge", 
+                   "Context dependence", 
+                   "Measurement error", 
+                   "Subjective judgment", 
+                   "Natural variation", 
+                   "Model uncertainty", 
+                   "Vagueness", 
+                   "Systematic error as a result of lack of knowledge")
+
+# Horizontal bar chart of source of uncertainty
 ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
   geom_bar(position = "dodge") +
   coord_flip() +
@@ -619,11 +645,11 @@ ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 10),
         legend.position = "none") +
-  xlab("Cause of uncertainty") +
+  xlab("Source of uncertainty") +
   ylab("Frequency") +
   scale_fill_manual(values = c("black","gray")) +
   scale_y_continuous(expand = c(0,0)) +
-  scale_x_discrete(limits = rev(levels(UncertErr.noNA$ErrorSource))) 
+  scale_x_discrete(limits = rev(levels(h2l.S))) 
 
 
 # Horizontal bar chart of types of uncertainty
@@ -645,7 +671,8 @@ ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   xlab("Type of uncertainty") +
   ylab("Frequency") +
   scale_fill_manual(values = c("black","gray")) +
-  scale_y_continuous(expand = c(0,0))
+  scale_y_continuous(expand = c(0,0)) +
+  scale_x_discrete(limits = rev(levels(h2l.T))) 
 
 
                                      ## Overall results ##
