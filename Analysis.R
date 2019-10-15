@@ -227,18 +227,26 @@ Final$Mechanism <- factor(Final$Mechanism, levels = c("Herbivory","Competition",
 
 Uncert <- NA2fctlvl(Uncert)
 Uncert$ErrorSource <- factor(Uncert$ErrorSource, 
-              levels =c("1 Human error", "2 Incomplete information searches",
-                        "3 Taxonomic ambiguity","4 Resolution of data and scaling of alien range",
-                        "5 Baseline information on indigenous range", "6a Limitations of assessment framework",
-                        "6b Limitations of assessment framework","7 Species designation as invasive",
-                        "8 Documented data and knowledge not readily or widely accessible",
-                        "9 Unclear mechanism and/or extent of impact", "10 Extrapolation of evidence",
-                        "11 Deviation from assessment protocol","12 No apparent cause"))
+              levels =c("1 Human error", 
+                        "2 Incomplete information searches",
+                        "3 Documented data and knowledge not readily or widely accessible",
+                        "4 Species identification",
+                        "5a Information regarding indigenous and/or alien range is insufficient", 
+                        "5b Information regarding indigenous and/or alien range is insufficient",
+                        "6 Limitations of assessment framework",
+                        "7 Species designation as invasive",
+                        "8 Unclear mechanism and/or extent of impact", 
+                        "9 Extrapolation of evidence",
+                        "10 Deviation from assessment protocol",
+                        "11 No apparent cause"))
 Uncert$Uncertainty <- factor(Uncert$Uncertainty, 
-                             levels = c("Context dependence","Measurement error",
-                                        "Model uncertainty","Natural variation",
-                                        "Subjective judgment","Subjective judgment as a result of lack of knowledge",
-                                        "Systematic error","Systematic error as a result of lack of knowledge",
+                             levels = c("Context dependence",
+                                        "Measurement error",
+                                        "Natural variation",
+                                        "Subjective judgment",
+                                        "Subjective judgment as a result of lack of knowledge",
+                                        "Systematic error",
+                                        "Systematic error as a result of lack of knowledge",
                                         "Vagueness"))
 
 # Section 2----
@@ -516,7 +524,7 @@ InsMechMat.2 <- InsMechMat.2[order(InsMechMat.2[,1],InsMechMat.2[,2],InsMechMat.
 
 apply(InsMechMat.2, 2, table)
 
-# Frequencies of the error types by mechanism and severity
+# Frequencies of the uncertainty sources by mechanism and severity
 table(Uncert[,c(2,4)])
 
 # Frequencies of the uncertainty types by mechanism and severity
@@ -602,19 +610,18 @@ ggplot(Final, aes(Severity, scientificName)) +
 UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),] #source of uncertainty
 # Ordering sources from most to least frequent
 h2l.S <- levels(Uncert$ErrorSource)
-levels(h2l.S) <- c("2 Incomplete information searches", 
-                "6b Limitations of assessment framework", 
-                "9 Unclear mechanism and/or extent of impact", 
-                "10 Extrapolation of evidence", 
-                "11 Deviation from assessment protocol", 
-                "1 Human error", 
-                "12 No apparent cause", 
-                "6a Limitations of assessment framework", 
-                "7 Species designation as invasive", 
-                "8 Documented data and knowledge not readily or widely accessible", 
-                "3 Taxonomic ambiguity", 
-                "5 Baseline information on indigenous range", 
-                "4 Resolution of data and scaling of alien range")
+levels(h2l.S) <- c("2 Incomplete information searches",
+                   "8 Unclear mechanism and/or extent of impact",
+                   "6 Limitations of assessment framework", 
+                   "9 Extrapolation of evidence", 
+                   "10 Deviation from assessment protocol", 
+                   "1 Human error", 
+                   "11 No apparent cause", 
+                   "7 Species designation as invasive", 
+                   "3 Documented data and knowledge not readily or widely accessible",
+                   "5b Information regarding indigenous and/or alien range is insufficient",
+                   "4 Species identification", 
+                   "5a Information regarding indigenous and/or alien range is insufficient")
 
 Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),] #type of uncertainty
 # Ordering types from most to least frequent
@@ -625,7 +632,6 @@ levels(h2l.T) <- c("Systematic error",
                    "Measurement error", 
                    "Subjective judgment", 
                    "Natural variation", 
-                   "Model uncertainty", 
                    "Vagueness", 
                    "Systematic error as a result of lack of knowledge")
 
