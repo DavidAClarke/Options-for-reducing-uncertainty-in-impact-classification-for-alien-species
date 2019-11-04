@@ -1,22 +1,22 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                                #
-#              TITLE: Uncertainty in alien insect impact assessments                             #
-#              PhD CHapter: 1                                                                    #
-#              Date started: 31/01/2019                                                          #
-#              Author: David A Clarke                                                            #
-#                                                                                                #         
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                                       #
+#     TITLE: Reducing uncertainty in impact assessments for invasive alien species      #
+#     PhD CHapter: 1                                                                    #
+#     Date started: 31/01/2019                                                          #
+#     Author: David A Clarke                                                            #
+#                                                                                       #         
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
 # Chapter/project description
 
 
 # Section 1----
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                                #
-#              SECTION 1: Setup for analysis                                                     #
-#                                                                                                #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                                       #
+#     SECTION 1: Setup for analysis                                                     #
+#                                                                                       #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 #~# Clears the environment
 rm(list=ls())
@@ -26,13 +26,6 @@ dir.create("Data")
 dir.create("Outcome")
 dir.create("Documents")
 dir.create("Scripts")
-
-#~# Source data
-Rnd1 <- read.csv("data/Round1.csv", header = T, sep = ",") 
-Rnd2 <- read.csv("data/Round2.csv", header = T, sep = ",")
-Final <- read.csv("data/Final_Results.csv", header = T, sep = ",")
-Uncert <- read.csv("data/CombUncert.csv", header = T, sep = ",")
-
 
 #~# Load functions
 # This loads all the functions in the functions script into the global environment.
@@ -44,7 +37,7 @@ packageList <- c( # Writing the package list out like this enables me to keep a 
   # GENERAL
   "gtools",
   # DATA PROCESSING
-  "plyr", "reshape2", "tidyr", "DataCombine",
+  "plyr", "reshape2", "tidyr", "DataCombine","tidyverse",
   # SPATIAL DATA
   # PLOTTING,
   "ggplot2","RColorBrewer","circlize", "plotrix", "gridExtra"
@@ -54,20 +47,30 @@ packageList <- c( # Writing the package list out like this enables me to keep a 
 #~# This uses the loadLibrary() function to install/load packages
 loadLibrary(packageList)
 
+#~# Source data
+Rnd1 <- read_csv("data/Round1.csv") 
+Rnd2 <- read_csv("data/Round2.csv")
+Final <- read_csv("data/Final_Results.csv")
+Uncert <- read_csv("data/CombUncert.csv")
 
-                                  #~# Round 1 #~#
+
+                                  #~# Round 1 Assessments #~#
+#~# Converting to factors
+Rnd1 <- Rnd1 %>% mutate_if(is.character, as.factor)
 
 #~# Including NA as a level for all variables
 Rnd1 <- NA2fctlvl(Rnd1)
-Rnd1$Species <- droplevels(Rnd1$Species, exclude = if(anyNA(levels(Rnd1$Species))) NULL else NA)
+Rnd1 <- mutate(Rnd1, Species = droplevels(Species, exclude = if(anyNA(levels(Species))) NULL else NA))
 
 #~# Round 1 Assessment severity agreement/disagreement frequency matrix
-Rnd1.mat <- matrix(table(Rnd1[,8:9]), nrow = 7, ncol = 7)
+Rnd1.mat <- select(Rnd1, `Assessor 1 Impact`, `Assessor 2 Impact`) %>%
+  table() %>% 
+  matrix(nrow = 7, ncol = 7)
 rownames(Rnd1.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
 colnames(Rnd1.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
 
 #~# Variation in mechanism agreement        
-InsectMechanism.1 <- Rnd1[,3:5]
+InsectMechanism.1 <- select(Rnd1, Species, `Assessor 1 Mechanism`, `Assessor 2 Mechanism`)
 Am <- c("Apis mellifera", "Competition", "Interaction with other alien species")
 InsectMechanism.1 <- InsertRow(InsectMechanism.1, NewRow = Am, RowNum = 11)
 InsectMechanism.1[10,3] <- "Competition"
@@ -81,7 +84,7 @@ Pc <- c("Pachycondyla chinensis", "Competition", "Predation")
 InsectMechanism.1 <- InsertRow(InsectMechanism.1, NewRow = Pc, RowNum = 17)
 InsectMechanism.1[16,3] <- "Competition"
 Vv <- c("Vespula vulgaris", "Competition", "Chemical/Physical/Structural impact on ecosystem")
-levels(InsectMechanism.1$Assessor.2.Mechanism) <- c(levels(InsectMechanism.1$Assessor.2.Mechanism), "Chemical/Physical/Structural impact on ecosystem")
+levels(InsectMechanism.1$`Assessor 2 Mechanism`) <- c(levels(InsectMechanism.1$`Assessor 2 Mechanism`), "Chemical/Physical/Structural impact on ecosystem")
 InsectMechanism.1 <- InsertRow(InsectMechanism.1, NewRow = Vv, RowNum = 26)
 InsectMechanism.1[25,3] <- "Predation"
 Ds <- c("Drosophila subobscura", "Facilitation of native species", "Competition")
@@ -157,24 +160,32 @@ InsectMechanism.1[120,] <- c("Anoplolepis gracilipes", "Predation", "Predation")
 Dc <- c("Diaphorina citri", "Herbivory", "Transmission of disease")
 InsectMechanism.1 <- InsertRow(InsectMechanism.1, NewRow = Dc, RowNum = 129)
 InsectMechanism.1[130,2] <- "Transmission of disease"
-InsectMechanism.1$Assessor.1.Mechanism <- factor(InsectMechanism.1$Assessor.1.Mechanism, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
-InsectMechanism.1$Assessor.2.Mechanism <- factor(InsectMechanism.1$Assessor.2.Mechanism, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
+InsectMechanism.1 <- mutate(InsectMechanism.1, 
+                            `Assessor 1 Mechanism` = factor(`Assessor 1 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None")),
+                            `Assessor 2 Mechanism` = factor(`Assessor 2 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
+                            )
 
 
-                                  #~# Round 2 #~#
+
+                                  #~# Round 2 Assessments #~#
+
+#~# Converting to factors
+Rnd2 <- Rnd2 %>% mutate_if(is.character, as.factor)
 
 #~# Including NA as a level for all variables
 Rnd2 <- NA2fctlvl(Rnd2)
-Rnd2$Species <- droplevels(Rnd2$Species, exclude = if(anyNA(levels(Rnd2$Species))) NULL else NA)
+Rnd2 <- mutate(Rnd2, Species = droplevels(Species, exclude = if(anyNA(levels(Species))) NULL else NA))
 
-#~# Round 2 Assessment severity agreement/disagreement frequency matrix
-Rnd2.mat <- matrix(table(Rnd2[,6:7]), nrow = 7, ncol = 7)
-rownames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV","NA")
-colnames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV","NA")
+#~# Round 1 Assessment severity agreement/disagreement frequency matrix
+Rnd2.mat <- select(Rnd2, `Assessor 1 Impact`, `Assessor 2 Impact`) %>%
+  table() %>% 
+  matrix(nrow = 7, ncol = 7)
+rownames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
+colnames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
 
 #~# Variation in mechanism agreement
 levels(Rnd2$Assessor.2.Mechanism)[1] <- "Chemical/Physical/Structural impact on ecosystem"
-InsectMechanism.2 <- Rnd2[,3:5]
+InsectMechanism.2 <- select(Rnd2, Species, `Assessor 1 Mechanism`, `Assessor 2 Mechanism`)
 Vvu <- c("Vespula vulgaris", "Predation", "Chemical/Physical/Structural impact on ecosystem")
 InsectMechanism.2 <- InsertRow(InsectMechanism.2, NewRow = Vvu, RowNum = 22)
 InsectMechanism.2[21,2] <- "Competition"
@@ -206,28 +217,42 @@ InsectMechanism.2[70,2] <- "Herbivory"
 Ace <- c("Apis cerana", "Other", "Interaction with other alien species")
 InsectMechanism.2 <- InsertRow(InsectMechanism.2, NewRow = Ace, RowNum = 87)
 InsectMechanism.2[86,3] <- "Competition"
-InsectMechanism.2$Assessor.1.Mechanism <- factor(InsectMechanism.2$Assessor.1.Mechanism, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
-InsectMechanism.2$Assessor.2.Mechanism <- factor(InsectMechanism.2$Assessor.2.Mechanism, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
+InsectMechanism.2 <- mutate(InsectMechanism.2, 
+                            `Assessor 1 Mechanism` = factor(`Assessor 1 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None")),
+                            `Assessor 2 Mechanism` = factor(`Assessor 2 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
+                            )
+
 
 
                                 #~# Final Results #~#
 #~# Including NA as a level for all variables
 Final <- NA2fctlvl(Final)
 
-Final$ConfVal <- as.factor(Final$ConfVal)
-Final$Confidence <- factor(Final$Confidence, levels = c("Low", "Medium", "High"), ordered = T)
-Final$Severity <- factor(Final$Severity, levels = c("MV","MR","MO","MN","MC","DD","NA"), ordered = T)
-Final$scientificName <- factor(Final$scientificName, levels = unique(Final$scientificName))
-Final$Mechanism <- factor(Final$Mechanism, levels = c("Herbivory","Competition","Predation",
-                                                      "Other","Transmission of disease","Parasitism","Interaction with other alien species",
-                                                      "Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"), ordered = T)
+Final <- mutate(Final, 
+                ConfVal = as.factor(ConfVal),
+                Confidence = factor(Confidence, 
+                                    levels = c("NA","Low", "Medium", "High"), 
+                                    ordered = T),
+                Severity = factor(Severity, 
+                                  levels = c("MV","MR","MO","MN","MC","DD","NA"), 
+                                  ordered = T),
+                scientificName = factor(scientificName, 
+                                        levels = unique(scientificName)),
+                Mechanism = factor(Mechanism, 
+                                   levels = c("Herbivory","Competition","Predation",
+                                              "Other","Transmission of disease","Parasitism","Interaction with other alien species",
+                                              "Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"), 
+                                   ordered = T))
+ 
+ 
 
 
                         #~# Uncertainty classification #~#
 
 Uncert <- NA2fctlvl(Uncert)
-Uncert$ErrorSource <- factor(Uncert$ErrorSource, 
-              levels =c("1 Human error", 
+Uncert <- mutate(Uncert, 
+                 ErrorSource = factor(ErrorSource, 
+                  levels =c("1 Human error", 
                         "2 Incomplete information searches",
                         "3 Documented data and knowledge not readily or widely accessible",
                         "4 Species identification",
@@ -238,8 +263,8 @@ Uncert$ErrorSource <- factor(Uncert$ErrorSource,
                         "8 Unclear mechanism and/or extent of impact", 
                         "9 Extrapolation of evidence",
                         "10 Deviation from assessment protocol",
-                        "11 No apparent cause"))
-Uncert$Uncertainty <- factor(Uncert$Uncertainty, 
+                        "11 No apparent cause")),
+                 Uncertainty = factor(Uncertainty, 
                              levels = c("Context dependence",
                                         "Measurement error",
                                         "Natural variation",
@@ -248,13 +273,14 @@ Uncert$Uncertainty <- factor(Uncert$Uncertainty,
                                         "Systematic error",
                                         "Systematic error as a result of lack of knowledge",
                                         "Vagueness"))
+                  )
 
 # Section 2----
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                                #
-#              SECTION 2: Analysis                                                               #
-#                                                                                                #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                                       #
+#              SECTION 2: Analysis                                                      #
+#                                                                                       #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Frequency of 1st round mechanism agreement
 Mech.agree.1 <- agree(Rnd1[,4:5])
 
@@ -290,8 +316,10 @@ NumSev(Rnd2.mat)
 
 #~# Variation in mechanism agreement round 1----
 InsMechMat.1 <- matrix(nrow = 100, ncol = 11)
-rownames(InsMechMat.1) <- levels(InsectMechanism.1$Species)
-colnames(InsMechMat.1) <- levels(InsectMechanism.1$Assessor.1.Mechanism)
+rownames(InsMechMat.1) <- InsectMechanism.1[,1] %>%
+  sapply(levels)
+colnames(InsMechMat.1) <- InsectMechanism.1[,2] %>%
+  sapply(levels)
 InsMechMat.1[1:nrow(InsMechMat.1),1:ncol(InsMechMat.1)] <- 0
 
 # 1 = agreement, 2 = disagreement
@@ -421,8 +449,10 @@ apply(InsMechMat.1, 2, table)
 
 #~# Variation in mechanism agreement round 2----
 InsMechMat.2 <- matrix(nrow = 100, ncol = 11)
-rownames(InsMechMat.2) <- levels(InsectMechanism.2$Species)
-colnames(InsMechMat.2) <- levels(InsectMechanism.2$Assessor.1.Mechanism)
+rownames(InsMechMat.2) <- InsectMechanism.2[,1] %>%
+  sapply(levels)
+colnames(InsMechMat.2) <- InsectMechanism.2[,2] %>%
+  sapply(levels)
 InsMechMat.2[1:nrow(InsMechMat.2),1:ncol(InsMechMat.2)] <- 0
 
 # 1 = agreement, 2 = disagreement
@@ -531,11 +561,11 @@ table(Uncert[,c(2,4)])
 table(Uncert[,c(3,4)])
 
 # Section 3----
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                                #
-#              SECTION 3: Plotting                                                               #
-#                                                                                                #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                                       #
+#              SECTION 3: Plotting                                                      #
+#                                                                                       #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 # Mechanism variation in round 1
 LongData <- melt(InsMechMat.1)
@@ -583,7 +613,6 @@ chordDiagram(Rnd2.mat, grid.col = colours, transparency = 0.5, annotationTrack =
 text(1,1,labels = "B")
 
 #~# Plot of final results
-#Matcol <- brewer.pal(6, "Spectral")
 ggplot(Final, aes(Mechanism, scientificName)) +
   geom_tile(aes(fill = Severity)) +
   geom_point(aes(size = ConfVal), shape = 21, fill = "beige", colour = "black") +
@@ -597,43 +626,45 @@ ggplot(Final, aes(Mechanism, scientificName)) +
 #~# Same plot without mechanisms
 ggplot(Final, aes(Severity, scientificName)) +
   geom_tile(aes(fill = Severity)) +
-  geom_point(aes(size = ConfVal), colour = "grey28") +
+  geom_point(aes(size = ConfVal), shape = 21, fill = "beige", colour = "black") +
   scale_y_discrete(limits = rev(levels(Final$scientificName))) +
-  scale_x_discrete(limits = rev(levels(Final$Severity))) +
+  scale_x_discrete(limits = levels(Final$Severity)) +
   #scale_fill_discrete(guide = guide_legend(reverse = T)) +
-  scale_fill_manual(values = c("gray45", "magenta4", "turquoise4", "black", "brown4", "deepskyblue3", "seagreen4")) +
-  theme_bw()
+  scale_fill_manual(values = rev(c("gray45", "magenta4", "turquoise4", "black", "brown4", "deepskyblue3", "seagreen4"))) +
+  theme_bw() +
+  scale_size_discrete(name = "Confidence", labels = c("NA", "Low", "Medium", "High"))
+  
 
                                       ## Uncertainty ##
 
 # Removing NA's for graphical purposes
 UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),] #source of uncertainty
 # Ordering sources from most to least frequent
-h2l.S <- levels(Uncert$ErrorSource)
-levels(h2l.S) <- c("2 Incomplete information searches",
-                   "8 Unclear mechanism and/or extent of impact",
-                   "6 Limitations of assessment framework", 
-                   "9 Extrapolation of evidence", 
-                   "10 Deviation from assessment protocol", 
-                   "1 Human error", 
-                   "11 No apparent cause", 
-                   "7 Species designation as invasive", 
-                   "3 Documented data and knowledge not readily or widely accessible",
-                   "5b Information regarding indigenous and/or alien range is insufficient",
-                   "4 Species identification", 
-                   "5a Information regarding indigenous and/or alien range is insufficient")
+h2l.S <- factor(levels = c("2 Incomplete information searches",
+                           "8 Unclear mechanism and/or extent of impact",
+                           "6 Limitations of assessment framework", 
+                           "9 Extrapolation of evidence", 
+                           "10 Deviation from assessment protocol", 
+                           "1 Human error", 
+                           "11 No apparent cause", 
+                           "7 Species designation as invasive", 
+                           "3 Documented data and knowledge not readily or widely accessible",
+                           "5b Information regarding indigenous and/or alien range is insufficient",
+                           "4 Species identification", 
+                           "5a Information regarding indigenous and/or alien range is insufficient"))
+ 
 
 Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),] #type of uncertainty
 # Ordering types from most to least frequent
-h2l.T <- levels(Uncert$Uncertainty)
-levels(h2l.T) <- c("Systematic error", 
-                   "Subjective judgment as a result of lack of knowledge", 
-                   "Context dependence", 
-                   "Measurement error", 
-                   "Subjective judgment", 
-                   "Natural variation", 
-                   "Vagueness", 
-                   "Systematic error as a result of lack of knowledge")
+h2l.T <- factor(levels = c("Systematic error", 
+                           "Subjective judgment as a result of lack of knowledge", 
+                           "Context dependence", 
+                           "Measurement error", 
+                           "Subjective judgment", 
+                           "Natural variation", 
+                           "Vagueness", 
+                           "Systematic error as a result of lack of knowledge"))
+
 
 # Horizontal bar chart of source of uncertainty
 ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
@@ -684,10 +715,10 @@ ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
                                      ## Overall results ##
 
 # Summary of 1st and 2nd round results
-Agreement <- c(44, 34, 32, 10, 65, 70, 63, 36)
-Component <- c("Mechanism","Severity","Confidence","Overall","Mechanism","Severity","Confidence","Overall")
-Component <- factor(Component, levels = c("Mechanism", "Severity", "Confidence", "Overall"))
-Rnd <- c(rep("One",4),rep("Two",4))
+Agreement <- c(44, 34, 32, 65, 70, 63)
+Component <- c("Mechanism","Severity","Confidence","Mechanism","Severity","Confidence")
+Component <- factor(Component, levels = c("Mechanism", "Severity", "Confidence"))
+Rnd <- c(rep("One",3),rep("Two",3))
 SumRes <- data.frame(Agreement, Component, Rnd)
 ggplot(SumRes, aes(Component, Agreement, fill = Rnd)) +
   geom_bar(position = "dodge", stat = "identity") +
