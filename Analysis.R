@@ -225,9 +225,6 @@ InsectMechanism.2 <- mutate(InsectMechanism.2,
 
 
                                 #~# Final Results #~#
-#~# Including NA as a level for all variables
-Final <- NA2fctlvl(Final)
-
 Final <- mutate(Final, 
                 ConfVal = as.factor(ConfVal),
                 Confidence = factor(Confidence, 
@@ -243,27 +240,29 @@ Final <- mutate(Final,
                                               "Other","Transmission of disease","Parasitism","Interaction with other alien species",
                                               "Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"), 
                                    ordered = T))
+
+#~# Including NA as a level for all variables
+Final <- NA2fctlvl(Final)
  
  
 
 
                         #~# Uncertainty classification #~#
 
-Uncert <- NA2fctlvl(Uncert)
 Uncert <- mutate(Uncert, 
                  ErrorSource = factor(ErrorSource, 
-                  levels =c("1 Human error", 
-                        "2 Incomplete information searches",
-                        "3 Documented data and knowledge not readily or widely accessible",
-                        "4 Species identification",
-                        "5a Information regarding indigenous and/or alien range is insufficient", 
-                        "5b Information regarding indigenous and/or alien range is insufficient",
-                        "6 Limitations of assessment framework",
-                        "7 Species designation as invasive",
-                        "8 Unclear mechanism and/or extent of impact", 
-                        "9 Extrapolation of evidence",
-                        "10 Deviation from assessment protocol",
-                        "11 No apparent cause")),
+                  levels =c("Human error (1)", 
+                            "Incomplete search (2)",
+                            "Knowledge inaccessible (3)",
+                            "Species identification (4)",
+                            "Range uncertain (5a)", 
+                            "Range uncertain (5b)",
+                            "Assessment limits (6)",
+                            "Invasiveness criteria (7)",
+                            "Mechanism/impact unclear (8)", 
+                            "Extrapolation of evidence (9)",
+                            "Deviation from protocol (10)",
+                            "No apparent cause (11)")),
                  Uncertainty = factor(Uncertainty, 
                              levels = c("Context dependence",
                                         "Measurement error",
@@ -272,8 +271,11 @@ Uncert <- mutate(Uncert,
                                         "Subjective judgment as a result of lack of knowledge",
                                         "Systematic error",
                                         "Systematic error as a result of lack of knowledge",
-                                        "Vagueness"))
+                                        "Vagueness")),
+                 AssessmentComponent = factor(AssessmentComponent,
+                                              levels = c("Mechanism", "Severity"))
                   )
+Uncert <- NA2fctlvl(Uncert)
 
 # Section 2----
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -640,18 +642,18 @@ ggplot(Final, aes(Severity, scientificName)) +
 # Removing NA's for graphical purposes
 UncertErr.noNA <- Uncert[!is.na(Uncert$ErrorSource),] #source of uncertainty
 # Ordering sources from most to least frequent
-h2l.S <- factor(levels = c("2 Incomplete information searches",
-                           "8 Unclear mechanism and/or extent of impact",
-                           "6 Limitations of assessment framework", 
-                           "9 Extrapolation of evidence", 
-                           "10 Deviation from assessment protocol", 
-                           "1 Human error", 
-                           "11 No apparent cause", 
-                           "7 Species designation as invasive", 
-                           "3 Documented data and knowledge not readily or widely accessible",
-                           "5b Information regarding indigenous and/or alien range is insufficient",
-                           "4 Species identification", 
-                           "5a Information regarding indigenous and/or alien range is insufficient"))
+h2l.S <- factor(levels = c("Incomplete search (2)",
+                           "Mechanism/impact unclear (8)",
+                           "Assessment limits (6)", 
+                           "Extrapolation of evidence (9)", 
+                           "Deviation from protocol (10)", 
+                           "Human error (1)", 
+                           "No apparent cause (11)", 
+                           "Invasiveness criteria (7)", 
+                           "Knowledge inaccessible (3)",
+                           "Range uncertain (5b)",
+                           "Species identification (4)", 
+                           "Range uncertain (5a)"))
  
 
 Uncert.noNA <- Uncert[!is.na(Uncert$Uncertainty),] #type of uncertainty
@@ -667,7 +669,7 @@ h2l.T <- factor(levels = c("Systematic error",
 
 
 # Horizontal bar chart of source of uncertainty
-ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
+source <- ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
   geom_bar(position = "dodge") +
   coord_flip() +
   facet_wrap(~AssessmentComponent) +
@@ -690,7 +692,7 @@ ggplot(UncertErr.noNA, aes(x = ErrorSource, fill = AssessmentComponent)) +
 
 
 # Horizontal bar chart of types of uncertainty
-ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
+type <- ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   geom_bar(position = "dodge") +
   coord_flip() +
   facet_wrap(~AssessmentComponent) +
@@ -710,7 +712,7 @@ ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   scale_fill_manual(values = c("black","gray")) +
   scale_y_continuous(expand = c(0,0)) +
   scale_x_discrete(limits = rev(levels(h2l.T))) 
-
+uncertplot <- arrangeGrob(source, type, nrow = 2, ncol = 1)
 
                                      ## Overall results ##
 
