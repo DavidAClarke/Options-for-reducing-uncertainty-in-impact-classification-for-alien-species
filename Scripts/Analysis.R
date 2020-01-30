@@ -634,6 +634,7 @@ ggplot(Final, aes(Severity, scientificName)) +
   #scale_fill_discrete(guide = guide_legend(reverse = T)) +
   scale_fill_manual(values = rev(c("gray45", "magenta4", "turquoise4", "black", "brown4", "deepskyblue3", "seagreen4"))) +
   theme_bw() +
+  theme(axis.text.y.left = element_text(face = "italic")) +
   scale_size_discrete(name = "Confidence", labels = c("NA", "Low", "Medium", "High"))
   
 
