@@ -93,3 +93,106 @@ Rnk2Norm <- function(df) {
 }
 
 
+
+#~#~# Function for generating random combinations of agreement/disagreement (WORK IN PROGRESS)----
+
+# Items <- c("DD", "MC", "MN", "MO", "MR", "MV") #this will be the 'n' in the combinations
+# 
+# df <- data.frame(DD.DD = integer(length = 0),
+#                 DD.MC = integer(length = 0),
+#                 MC.MC = integer(length = 0),
+#                 DD.MN = integer(length = 0),
+#                 MC.MN = integer(length = 0),
+#                 MN.MN = integer(length = 0),
+#                 DD.MO = integer(length = 0),
+#                 MC.MO = integer(length = 0),
+#                 MN.MO = integer(length = 0),
+#                 MO.MO = integer(length = 0),
+#                 DD.MR = integer(length = 0),
+#                 MC.MR = integer(length = 0),
+#                 MN.MR = integer(length = 0),
+#                 MO.MR = integer(length = 0),
+#                 MR.MR = integer(length = 0),
+#                 DD.MV = integer(length = 0),
+#                 MC.MV = integer(length = 0),
+#                 MN.MV = integer(length = 0),
+#                 MO.MV = integer(length = 0),
+#                 MR.MV = integer(length = 0),
+#                 MV.MV = integer(length = 0))
+# 
+# 
+# for(i in 1:100)
+# {
+#   combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#   combs.df <- as.data.frame(combs)
+#   combs.df <- combs.df %>% unite("It.", c(V1, V2))
+#   combs.df <- as.data.frame(table(combs.df))
+#   if(length(combs.df$Freq) != 21) {
+#     combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#     combs.df <- as.data.frame(combs)
+#     combs.df <- combs.df %>% unite("It.", c(V1, V2))
+#     combs.df <- as.data.frame(table(combs.df))
+#   } else df[i,] <- combs.df$Freq }
+# 
+# for(i in 1:100) 
+#   {
+#   if(is.na(df[i,]) == TRUE) {
+#     combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#     combs.df <- as.data.frame(combs)
+#     combs.df <- combs.df %>% unite("It.", c(V1, V2))
+#     combs.df <- as.data.frame(table(combs.df))
+#     if(length(combs.df$Freq) == 21){
+#     df[i,] <- combs.df$Freq
+#     } else repeat {
+#       combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#       combs.df <- as.data.frame(combs)
+#       combs.df <- combs.df %>% unite("It.", c(V1, V2))
+#       combs.df <- as.data.frame(table(combs.df))
+#       if(is.na(df[i,] == FALSE)){
+#         break
+#       }
+#     }
+#   }
+# }
+
+
+
+
+  
+
+#Combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#combs.df <- as.data.frame(Combs)
+#combs.df %>% unite("It.", c(V1, V2))
+#Then either
+#table(combs.df)
+#or
+#combs.df <- as.data.frame(table(combs.df))
+#combs.df <- combs.df[combs.df$Freq > 0,]
+
+
+
+#df[2,] <- Combs.df$Freq
+
+#new.df <- function(df){
+#  repeat{
+#    Combs <- combinations(Items, 2, replace = TRUE, nsample = 100)
+#    combs.df <- as.data.frame(Combs) #as_tibble
+#    combs.df %>% unite("It.", c(V1, V2))
+#    combs.df <- as.data.frame(table(combs.df)) #as_tibble
+#    combs.df <- combs.df[combs.df$Freq > 0,] #filter(n > 0)
+#    combs.df <- t(combs.df$Freq) #mutate?
+#if(nrow(df) == 0) {
+#  df <- DataCombine::InsertRow(df, combs.df, RowNum = (nrow(df)+1))
+#} else if(nrow(df)!=0){
+#  df <- DataCombine::InsertRow(df, combs.df, RowNum = (nrow(df)))
+#} else if(nrow(df) == 101) {
+#  print("The end");
+#  break
+#}
+#  return(df)
+#  }
+#}
+
+
+
+#Need to repeat many times i.e. many iterations and store in a neat way and then find means etc.

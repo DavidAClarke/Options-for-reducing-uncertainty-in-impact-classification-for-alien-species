@@ -35,13 +35,17 @@ source("Scripts/Functions.R")
 # This function is convenient for adding packages. If they aren't currently installed they will be prior to loading.
 packageList <- c( # Writing the package list out like this enables me to keep a better track of what you are loading.
   # GENERAL
-  "gtools",
+  "gtools", "devtools",
   # DATA PROCESSING
-  "plyr", "reshape2", "tidyr", "DataCombine","tidyverse",
+  "reshape2", "DataCombine","tidyverse",
   # SPATIAL DATA
+  "sp", "sf", "tmap", "GADMTools",
   # PLOTTING,
-  "ggplot2","RColorBrewer","circlize", "plotrix", "gridExtra"
-  # STATISTICS
+  "RColorBrewer","circlize", "plotrix", "gridExtra",
+  # STATISTICS"
+  "arrangements", "DiscriMiner", "rcompanion", "DescTools",
+  # BIODIVERSITY,
+  "rgbif", "ALA4R"
   )
 
 #~# This uses the loadLibrary() function to install/load packages
@@ -165,6 +169,13 @@ InsectMechanism.1 <- mutate(InsectMechanism.1,
                             `Assessor 2 Mechanism` = factor(`Assessor 2 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
                             )
 
+#~# Round 1 Assessment mechanism agreement/disagreement frequency matrix
+# This can be misleading as it double counts due to some people assigning more than one mechanism.
+Rnd1.mechmat <- select(InsectMechanism.1, `Assessor 1 Mechanism`, `Assessor 2 Mechanism`) %>%
+       table() %>% 
+       matrix(nrow = 11, ncol = 11)
+rownames(Rnd1.mechmat) <- c("He", "Co", "Pr", "Ot", "Tr", "Pa", "In", "Fa", "Hy", "Ch", "No")
+colnames(Rnd1.mechmat) <- c("He", "Co", "Pr", "Ot", "Tr", "Pa", "In", "Fa", "Hy", "Ch", "No")
 
 
                                   #~# Round 2 Assessments #~#
@@ -184,7 +195,6 @@ rownames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
 colnames(Rnd2.mat) <- c("DD", "MC", "MN", "MO", "MR", "MV", "NA")
 
 #~# Variation in mechanism agreement
-levels(Rnd2$Assessor.2.Mechanism)[1] <- "Chemical/Physical/Structural impact on ecosystem"
 InsectMechanism.2 <- select(Rnd2, Species, `Assessor 1 Mechanism`, `Assessor 2 Mechanism`)
 Vvu <- c("Vespula vulgaris", "Predation", "Chemical/Physical/Structural impact on ecosystem")
 InsectMechanism.2 <- InsertRow(InsectMechanism.2, NewRow = Vvu, RowNum = 22)
@@ -222,6 +232,11 @@ InsectMechanism.2 <- mutate(InsectMechanism.2,
                             `Assessor 2 Mechanism` = factor(`Assessor 2 Mechanism`, levels = c("Herbivory","Competition","Predation","Other","Transmission of disease","Parasitism","Interaction with other alien species","Facilitation of native species","Hybridisation","Chemical/Physical/Structural impact on ecosystem","None"))
                             )
 
+Rnd2.mechmat <- select(InsectMechanism.2, `Assessor 1 Mechanism`, `Assessor 2 Mechanism`) %>%
+  table() %>% 
+  matrix(nrow = 11, ncol = 11)
+rownames(Rnd2.mechmat) <- c("He", "Co", "Pr", "Ot", "Tr", "Pa", "In", "Fa", "Hy", "Ch", "No")
+colnames(Rnd2.mechmat) <- c("He", "Co", "Pr", "Ot", "Tr", "Pa", "In", "Fa", "Hy", "Ch", "No")
 
 
                                 #~# Final Results #~#
@@ -284,7 +299,7 @@ Uncert <- NA2fctlvl(Uncert)
 #                                                                                       #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Frequency of 1st round mechanism agreement
-Mech.agree.1 <- agree(Rnd1[,4:5])
+Mech.agree.1 <- agree(Rnd1[,4:5]) #includes the conservative approach to disagreement
 
 # Frequency of 1st round severity agreement
 Sev.agree.1 <- agree(Rnd1[,6:7])
@@ -315,6 +330,26 @@ NumSev(Rnd1.mat)
 
 # Impact severity agreement round 2
 NumSev(Rnd2.mat)
+
+# Expected vs observed agreement (excluding species with NA therefore 99 species/6 categories)
+Observed <- c(rep("Agree", 70), rep("Disagree", 29)) 
+Observed.mat <- table(Observed)
+# Agree = 6*(1/21), disagree = 15*(1/21); 21 category combinations
+Agree.prob <- c(0.29, 0.71) 
+Agree.test <- chisq.test(x = Observed.mat, p = Agree.prob)
+
+# # Expected vs observed (final) impact severities
+# Severities <- c("MC", "MN", "MO", "MR", "MV")
+# Observed <- c(6, 10, 26, 12, 2)
+# Expect.Uni <- c(rep(11.2, 5))
+# Expect.Lin <- c(15.2, 13.2, 11.2, 9.2, 7.2)
+# Expect.Lin.p <- c(0.27, 0.24, 0.2, 0.16, 0.13)
+# Expect.nonlin <- c(20,14,10,7,5)
+# Expect.nonlin.p <- c(0.36, 0.25, 0.18, 0.12, 0.09)
+# 
+# Uni.chisq <- chisq.test(x = Observed)
+# Lin.chisq <- chisq.test(x = Observed, p = Expect.Lin.p)
+# Nonlin.chisq <- chisq.test(x = Observed, p = Expect.nonlin.p)
 
 #~# Variation in mechanism agreement round 1----
 InsMechMat.1 <- matrix(nrow = 100, ncol = 11)
@@ -562,6 +597,8 @@ table(Uncert[,c(2,4)])
 # Frequencies of the uncertainty types by mechanism and severity
 table(Uncert[,c(3,4)])
 
+
+
 # Section 3----
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #                                                                                       #
@@ -581,6 +618,7 @@ ggplot(LongData, aes(x = Var2, y = Var1)) +
         panel.border = element_blank(),
         panel.background = element_blank(),
         axis.text.x = element_text(angle = 40, hjust = 1),
+        axis.text.y.left = element_text(face = "italic"),
         legend.position = "none") +
   scale_y_discrete(limits = rev(levels(LongData$Var1))) +
   xlab("Mechanism of impact") +
@@ -598,6 +636,7 @@ ggplot(LongData.2, aes(x = Var2, y = Var1)) +
         panel.border = element_blank(),
         panel.background = element_blank(),
         axis.text.x = element_text(angle = 40, hjust = 1),
+        axis.text.y.left = element_text(face = "italic"),
         legend.position = "none") +
   scale_y_discrete(limits = rev(levels(LongData.2$Var1))) +
   xlab("Mechanism of impact") +
