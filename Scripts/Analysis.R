@@ -1,15 +1,11 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#                                                                                       #
-#     TITLE: Reducing uncertainty in impact assessments for invasive alien species      #
-#     PhD CHapter: 1                                                                    #
-#     Date started: 31/01/2019                                                          #
-#     Author: David A Clarke                                                            #
-#                                                                                       #         
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
-
-# Chapter/project description
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#                                                                          #
+# TITLE: An analysis of uncertainty and options for reducing it in impact  #
+#        assessment for alien species                                      #
+# PhD CHapter: 1                                                           #
+# Script author: David A Clarke                                            #
+#                                                                          #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#                            #         
 
 # Section 1----
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -334,22 +330,10 @@ NumSev(Rnd2.mat)
 # Expected vs observed agreement (excluding species with NA therefore 99 species/6 categories)
 Observed <- c(rep("Agree", 70), rep("Disagree", 29)) 
 Observed.mat <- table(Observed)
-# Agree = 6*(1/21), disagree = 15*(1/21); 21 category combinations
+# Agree = 6*(1/21), disagree = 15*(1/21)
+# 21 category combinations (6 choose 2, with replacement)
 Agree.prob <- c(0.29, 0.71) 
 Agree.test <- chisq.test(x = Observed.mat, p = Agree.prob)
-
-# # Expected vs observed (final) impact severities
-# Severities <- c("MC", "MN", "MO", "MR", "MV")
-# Observed <- c(6, 10, 26, 12, 2)
-# Expect.Uni <- c(rep(11.2, 5))
-# Expect.Lin <- c(15.2, 13.2, 11.2, 9.2, 7.2)
-# Expect.Lin.p <- c(0.27, 0.24, 0.2, 0.16, 0.13)
-# Expect.nonlin <- c(20,14,10,7,5)
-# Expect.nonlin.p <- c(0.36, 0.25, 0.18, 0.12, 0.09)
-# 
-# Uni.chisq <- chisq.test(x = Observed)
-# Lin.chisq <- chisq.test(x = Observed, p = Expect.Lin.p)
-# Nonlin.chisq <- chisq.test(x = Observed, p = Expect.nonlin.p)
 
 #~# Variation in mechanism agreement round 1----
 InsMechMat.1 <- matrix(nrow = 100, ncol = 11)
@@ -608,6 +592,7 @@ table(Uncert[,c(3,4)])
 
 # Mechanism variation in round 1
 LongData <- melt(InsMechMat.1)
+mechs <- c("Her", "Com", "Pre", "Oth", "Tra", "Par", "Int", "Fac", "Hyb", "Che", "None")
 ggplot(LongData, aes(x = Var2, y = Var1)) + 
       geom_tile(aes(fill=value), colour = "black") +
   scale_fill_gradientn(colours = c("white", "darkgreen", "orangered")) +
@@ -617,10 +602,10 @@ ggplot(LongData, aes(x = Var2, y = Var1)) +
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank(),
-        axis.text.x = element_text(angle = 40, hjust = 1),
         axis.text.y.left = element_text(face = "italic"),
         legend.position = "none") +
   scale_y_discrete(limits = rev(levels(LongData$Var1))) +
+  scale_x_discrete(labels = mechs) +
   xlab("Mechanism of impact") +
   ylab("Species")
 
@@ -639,6 +624,7 @@ ggplot(LongData.2, aes(x = Var2, y = Var1)) +
         axis.text.y.left = element_text(face = "italic"),
         legend.position = "none") +
   scale_y_discrete(limits = rev(levels(LongData.2$Var1))) +
+  scale_x_discrete(labels = mechs) +
   xlab("Mechanism of impact") +
   ylab("Species")
 
@@ -674,7 +660,8 @@ ggplot(Final, aes(Severity, scientificName)) +
   scale_fill_manual(values = rev(c("gray45", "magenta4", "turquoise4", "black", "brown4", "deepskyblue3", "seagreen4"))) +
   theme_bw() +
   theme(axis.text.y.left = element_text(face = "italic")) +
-  scale_size_discrete(name = "Confidence", labels = c("NA", "Low", "Medium", "High"))
+  scale_size_discrete(name = "Confidence", labels = c("NA", "Low", "Medium", "High"))+
+  ylab("Species")
   
 
                                       ## Uncertainty ##
@@ -706,6 +693,10 @@ h2l.T <- factor(levels = c("Systematic error",
                            "Natural variation", 
                            "Vagueness", 
                            "Systematic error as a result of lack of knowledge"))
+
+UncType <- c("Systematic error (ii)", "Subjective judgment (iii_a)", "Context dependence (iv)",
+             "Measurement error (i)", "Subjective judgment (iii)", "Natural variation (vi)",
+             "Vagueness (v)", "Systematic error (ii_a)")
 
 
 # Horizontal bar chart of source of uncertainty
@@ -751,9 +742,10 @@ type <- ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   ylab("Frequency") +
   scale_fill_manual(values = c("black","gray")) +
   scale_y_continuous(expand = c(0,0)) +
-  scale_x_discrete(limits = rev(levels(h2l.T))) 
+  scale_x_discrete(labels = rev(UncType), limits = rev(levels(h2l.T))) 
 uncertplot <- arrangeGrob(source, type, nrow = 2, ncol = 1)
 
+scale_x_discrete(limits = rev(levels(h2l.T)))
                                      ## Overall results ##
 
 # Summary of 1st and 2nd round results
