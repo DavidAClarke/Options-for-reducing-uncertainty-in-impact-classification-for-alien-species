@@ -18,10 +18,10 @@
 rm(list=ls())
 
 #~# Create directories
-dir.create("Data")
-dir.create("Outcome")
-dir.create("Documents")
-dir.create("Scripts")
+#dir.create("Data")
+#dir.create("Outcome")
+#dir.create("Documents")
+#dir.create("Scripts")
 
 #~# Load functions
 # This loads all the functions in the functions script into the global environment.
@@ -34,14 +34,8 @@ packageList <- c( # Writing the package list out like this enables me to keep a 
   "gtools", "devtools",
   # DATA PROCESSING
   "reshape2", "DataCombine","tidyverse",
-  # SPATIAL DATA
-  "sp", "sf", "tmap", "GADMTools",
-  # PLOTTING,
-  "RColorBrewer","circlize", "plotrix", "gridExtra",
-  # STATISTICS"
-  "arrangements", "DiscriMiner", "rcompanion", "DescTools",
-  # BIODIVERSITY,
-  "rgbif", "ALA4R"
+  # PLOTTING
+  "RColorBrewer","circlize", "plotrix", "gridExtra"
   )
 
 #~# This uses the loadLibrary() function to install/load packages
@@ -745,7 +739,6 @@ type <- ggplot(Uncert.noNA, aes(x = Uncertainty, fill = AssessmentComponent)) +
   scale_x_discrete(labels = rev(UncType), limits = rev(levels(h2l.T))) 
 uncertplot <- arrangeGrob(source, type, nrow = 2, ncol = 1)
 
-scale_x_discrete(limits = rev(levels(h2l.T)))
                                      ## Overall results ##
 
 # Summary of 1st and 2nd round results
